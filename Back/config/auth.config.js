@@ -9,7 +9,7 @@ module.exports = {
     jwtexpiration: process.env.JWT_EXPIRATION || 86400, // 24 horas
 
     // Tiempo para refrescar los tokens (en segundos)
-    jwtrefresh: 604800, // 7 dias
+    jwtrefresh: 6048000, // 7 dias
 
     // numero de rondas de hash para las contraseñas
     slatRounds: process.env.SALT_ROUNDS || 8
