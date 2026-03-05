@@ -1,7 +1,7 @@
 // modelo de usuario
 
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs'); //libreria para encriptar la contraseña
 const { use } = require('react');
 
 // estructura del usuario
@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6,
-        select: false // No incluir el campo password en las consultas por defecto
+        select: false // No incluir el campo password en niguna de las consultas que se realicen
     },
     DOB: {
         type: Date,
@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema({
     },
     rol: {
         type: String,
-        enum: ['Admin', 'coordinador', 'auxiliar'],
+        enum: ['admin', 'coordinador', 'auxiliar'],//solo estos son valores son permitidos
         default: 'auxiliar'
     },
     status: {
@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema({
         versionKey: false // Elimina el campo __v que Mongoose agrega por defecto
     }
 );
-
+//middleware encripta la contraseña entes de guardar el usuario.
 UserSchema.pre('save', async function (next) {
     try {
         // Solo hashea la contraseña si ha sido modificada o es nueva

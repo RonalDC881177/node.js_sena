@@ -2,7 +2,7 @@
  * Contralador de productos
  * maneja todas la operaciones CRUD relacionadas con los productos 
  * Estructura: una subcategoria depende de una categoria padre, una categoria puede tener varias subcategorias, una subcategoria puede tener varios productos relacionados
- * Cuando una subcategoria se elimina los producto srelaiconados se desactivan
+ * Cuando una subcategoria se elimina los producto relaiconados se desactivan
  * Cuando se ejecuta en cascada SOFT DELETE se eliminan de manera permanente  
  */
 
@@ -30,48 +30,55 @@ exports.createProduct = async (req, res) => {
     try {
         const { name, description, price, stock, category, subcategory } = req.body;
 
+        if (!name || !description || !price || !stock || !category || !subcategory) {
+            return res.status(404).json({
+                success: false,
+                message: 'todos los campos son obligatorios',
+                requiredfields: ['name', 'description', 'price', 'stock', 'category', 'subcategory']
+            });
+        }
         // Validar que la categoria padre exista
-        const parentCategory = await Category.findById(category);
-
-        if (!parentCategory){
+        const categoryExist = await Category.findById(category);
+        if (!categoryExist) {
             return res.status(404).json({
                 success: false,
-                message: 'La categoria no existe'
+                messagge: 'la categoria solicitada no existe',
+                categoryId: category
+            });
+
+            // Validar que la subcategoria exista
+            const parentSubcategory = await Subcategory.findById(subcategory);
+
+            if (!parentSubcategory) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'La subcategoria no existe'
+                });
+            }
+
+            // Crear el nuevo Producto
+            const newProduct = new Product({
+                name: name.trim(), // Guardar el nombre sin espacios en blanco al crear la categoria
+                description: description.trim(), // Guardar la descripcion sin espacios en blanco al crear la categoria
+                price: price,
+                stock: stock,
+                category: category,
+                subcategory: subcategory
+            });
+
+            await newProduct.save();
+            res.status(201).json({
+                success: true,
+                message: 'Producto creado exitosamente',
+                data: newProduct
             });
         }
 
-        // Validar que la subcategoria exista
-        const parentSubcategory = await Subcategory.findById(subcategory);
-
-        if (!parentSubcategory){
-            return res.status(404).json({
-                success: false,
-                message: 'La subcategoria no existe'
-            });
-        }
-
-        // Crear el nuevo Producto
-        const newProduct = new Product({
-            name: name.trim(), // Guardar el nombre sin espacios en blanco al crear la categoria
-            description: description.trim(), // Guardar la descripcion sin espacios en blanco al crear la categoria
-            price: price,
-            stock: stock,
-            category: category,
-            subcategory: subcategory
-        });
-
-        await newProduct.save();
-        res.status(201).json({
-            success: true,
-            message: 'Producto creado exitosamente',
-            data: newProduct
-        });
-
-    } catch (error){
+    } catch (error) {
         console.error('Error al crear el Producto', error)
 
         // Manejo de error de indice unico
-        if (error.message.includes ('duplicate key') || error.message.includes ('Ya existe')){
+        if (error.message.includes('duplicate key') || error.message.includes('Ya existe')) {
             return res.status(400).json({
                 success: false,
                 message: 'Ya existe un Producto con ese nombre'
@@ -84,7 +91,7 @@ exports.createProduct = async (req, res) => {
             message: 'Error al crear el producto'
         });
     }
-};
+}
 
 /**
  * GET consultar listado de productos
@@ -104,7 +111,7 @@ exports.getProducts = async (req, res) => {
         // Por defecto solo se muestran los productos activos
         // IncludeInactive = true muestra todos los productos incluyendo los inactivos
         const includeInactive = req.query.includeInactive === 'true';
-        const activeFilter = includeInactive ? {} : { active : { $ne: false }};
+        const activeFilter = includeInactive ? {} : { active: { $ne: false } };
 
         const products = await Product.find(activeFilter).populate('category', 'name').populate('subcategory', 'name');
         res.status(200).json({
@@ -184,6 +191,7 @@ exports.getProductById = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         const { name, description, price, stock, category, subcategory } = req.body;
+        const updateData = {};
 
         // Verificar si cambia la categoria padre
         if (category) {
@@ -206,16 +214,17 @@ exports.updateProduct = async (req, res) => {
                 });
             }
         }
-        
-        // Construir el objeto de actualización solo con campos enviados
-        const updateProduct = await Product.findByIdAndUpdate(req.params.id, 
-        { name: name ? name.trim() : 
-            undefined, description: 
-            description ? description.trim() : 
-            undefined, price, stock, category, subcategory
-        },
 
-        { new: true, runValidators: true});
+        // Construir el objeto de actualización solo con campos enviados
+        const updateProduct = await Product.findByIdAndUpdate(req.params.id,
+            {
+                name: name ? name.trim() :
+                    undefined, description:
+                    description ? description.trim() :
+                        undefined, price, stock, category, subcategory
+            },
+
+            { new: true, runValidators: true });
 
         if (!updateProduct) {
             return res.status(404).json({
@@ -230,7 +239,7 @@ exports.updateProduct = async (req, res) => {
             data: updateProduct
         });
 
-    }catch (error) {
+    } catch (error) {
         console.error('Error en actualizar el producto', error);
         res.status(500).json({
             success: false,
@@ -278,6 +287,7 @@ exports.deleteProduct = async (req, res) => {
             res.status(200).json({
                 success: true,
                 message: 'Producto eliminado permanentemente',
+                data: product
             });
 
         } else {
@@ -290,7 +300,7 @@ exports.deleteProduct = async (req, res) => {
                 success: true,
                 message: 'Producto desactivado exitosamente',
                 data: product
-            }); 
+            });
         }
 
     } catch (error) {

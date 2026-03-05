@@ -52,6 +52,7 @@ const productSchema = new mongoose.Schema({
     // un producto pertece a una categoria pero una subcategoria puede tener miuchos productos relacion 1 - muchos
 
     category:{
+        //tipo para refetenciar elementos de otra coleccion
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category', // Puede ser poblado con -populate ('category')
         required:[true, 'La categoria es requerida']
@@ -84,7 +85,7 @@ const productSchema = new mongoose.Schema({
         default: true, // por defecto el producto esta activo
     },
 },{
-    timestamps: true, // agrega createDat y updateAt
+    timestamps: true, // agrega createDat y updateAt de forma automatica
     versionKey: false, // elimina el campo __v
 });
 
