@@ -14,7 +14,7 @@ const User = require('../models/user');
 
 const Product = require('../models/Products');
 const Category = require('../models/Category');
-const subCategory = require('../models/Subcategory');
+const subcategory = require('../models/Subcategory');
 
 
 /**
@@ -31,7 +31,7 @@ exports.getStatistics = async (req,res) =>{
             User.countDocuments(), // contar usuarios
             Product.countDocuments(), // contar productos
             Category.countDocuments(), // Contar categorias
-            subCategory.countDocuments() // contar subcategorias
+            subcategory.countDocuments() // contar subcategorias
         ])
          res.status(200).json({
             totalUsers,

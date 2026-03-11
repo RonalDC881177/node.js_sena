@@ -115,7 +115,7 @@ async function runTests() {
     // Datos del usuario de prueba con timestamp para evitar duplicados
     username: `testuser${timestamp}`, // Username único gracias al timestamp
     email: `test${timestamp}@example.com`, // Email único gracias al timestamp
-    password: "test123", // Contraseña del usuario de prueba
+    password: "test123456", // Contraseña del usuario de prueba
     role: "auxiliar", // Rol menos privilegiado
   };
   res = await request("POST", "/users", newUser); // Petición POST /api/users con datos del nuevo usuario
