@@ -18,25 +18,25 @@ routes.use((req,res,next)=>{
 
 routes.post('/',
     verifyToken,
-    checkRole(['admin','coordinador']),
+    checkRole('admin','coordinador'),
     userController.createUser
 )
 
 routes.get('/',
     verifyToken,
-    checkRole(['admin','coordinador']),
+    checkRole('admin','coordinador'),
     userController.getAllUsers
 )
 
 routes.get('/:id',
     verifyToken,
-    checkRole(['admin','coordinador']),
+    checkRole('admin','coordinador'),
     userController.getUserById
 )
 
 routes.put('/:id',
     verifyToken,
-    checkRole(['admin','coordinador']),
+    checkRole('admin','coordinador'),
     userController.updateUser
 )
 
